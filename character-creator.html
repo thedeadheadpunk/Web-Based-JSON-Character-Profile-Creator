@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Character Profile Creator – Hangout Simulator</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #242836;
+      --border: #2e3345;
+      --text: #e8eaef;
+      --text-muted: #9ba3b5;
+      --accent: #7c9cff;
+      --accent-hover: #9bb3ff;
+      --success: #4ade80;
+      --danger: #f87171;
+      --warning: #fbbf24;
+      --radius: 10px;
+      --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .container { grid-template-columns: 1fr; }
+    }
+
+    header {
+      grid-column: 1 / -1;
+      margin-bottom: 0.5rem;
+    }
+
+    header h1 {
+      font-size: 1.6rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-width: 90px;
+      padding: 0.75rem 0.5rem;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: rgba(124,156,255,0.08);
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 1.25rem;
+    }
+    .tab-panel.active { display: block; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      font-size: 0.82rem;
+      font-weight: 550;
+      color: var(--text-muted);
+      letter-spacing: 0.01em;
+    }
+
+    label .required { color: var(--danger); }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 0.55rem 0.75rem;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,156,255,0.15);
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .hint {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      opacity: 0.85;
+    }
+
+    /* Tag / multi-value inputs */
+    .tag-input-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.4rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      min-height: 42px;
+      align-items: center;
+    }
+
+    .tag-input-wrap:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,156,255,0.15);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      background: rgba(124,156,255,0.15);
+      color: var(--accent);
+      padding: 0.2rem 0.5rem;
+      border-radius: 5px;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .tag button {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
+      opacity: 0.7;
+    }
+    .tag button:hover { opacity: 1; }
+
+    .tag-input {
+      flex: 1;
+      min-width: 100px;
+      border: none !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0.25rem !important;
+    }
+
+    /* ===== Alignment Grid (D&D 3x3) ===== */
+    .alignment-section {
+      margin-top: 0.5rem;
+    }
+
+    .alignment-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .align-btn {
+      position: relative;
+      padding: 0.7rem 0.4rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      line-height: 1.25;
+    }
+
+    .align-btn:hover {
+      border-color: var(--accent);
+      color: var(--text);
+      background: rgba(124,156,255,0.08);
+    }
+
+    .align-btn.selected {
+      border-color: var(--accent);
+      background: rgba(124,156,255,0.18);
+      color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(124,156,255,0.25);
+    }
+
+    .align-btn .align-name {
+      display: block;
+      font-size: 0.82rem;
+    }
+
+    .align-btn .align-short {
+      display: block;
+      font-size: 0.7rem;
+      opacity: 0.7;
+      font-weight: 500;
+      margin-top: 0.15rem;
+    }
+
+    .alignment-desc {
+      margin-top: 0.75rem;
+      padding: 0.7rem 0.9rem;
+      background: rgba(124,156,255,0.07);
+      border: 1px solid rgba(124,156,255,0.2);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text);
+      min-height: 3.2rem;
+    }
+
+    .alignment-desc strong {
+      color: var(--accent);
+    }
+
+    /* Preview panel */
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.85rem 1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .preview-header h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    button.btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    button.btn:hover {
+      background: var(--surface2);
+      border-color: #3d4459;
+    }
+
+    button.btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #0f1117;
+      font-weight: 600;
+    }
+    button.btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    button.btn-success {
+      background: var(--success);
+      border-color: var(--success);
+      color: #0f1117;
+      font-weight: 600;
+    }
+
+    button.btn-danger {
+      background: transparent;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    button.btn-danger:hover {
+      background: rgba(248,113,113,0.1);
+    }
+
+    pre#json-preview {
+      margin: 0;
+      padding: 1rem;
+      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.45;
+      overflow: auto;
+      max-height: 65vh;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #c8d0e0;
+    }
+
+    .status {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.75rem;
+      display: none;
+    }
+    .status.show { display: block; }
+    .status.ok { background: rgba(74,222,128,0.12); color: var(--success); }
+    .status.err { background: rgba(248,113,113,0.12); color: var(--danger); }
+
+    .footer-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .advanced-note {
+      background: rgba(251,191,36,0.08);
+      border: 1px solid rgba(251,191,36,0.25);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: var(--warning);
+      margin-bottom: 1rem;
+    }
+
+    #raw-json {
+      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+      font-size: 0.82rem;
+      min-height: 320px;
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Character Profile Creator</h1>
+      <p>Create a character JSON for the hangout simulator. Designed for community contributions (friendly + advanced options).</p>
+    </header>
+
+    <!-- Form Card -->
+    <div class="card">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="basic">Basic</button>
+        <button class="tab-btn" data-tab="personality">Personality</button>
+        <button class="tab-btn" data-tab="appearance">Appearance</button>
+        <button class="tab-btn" data-tab="social">Social</button>
+        <button class="tab-btn" data-tab="advanced">Advanced</button>
+      </div>
+
+      <!-- BASIC -->
+      <div class="tab-panel active" id="tab-basic">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name <span class="required">*</span></label>
+            <input type="text" id="name" placeholder="e.g. Luna Starwhisper" />
+          </div>
+          <div class="form-group">
+            <label>ID / Slug</label>
+            <input type="text" id="id" placeholder="auto-generated from name" />
+            <span class="hint">Lowercase, hyphens only. Leave blank to auto-create.</span>
+          </div>
+          <div class="form-group">
+            <label>Pronouns</label>
+            <input type="text" id="pronouns" placeholder="they/them, she/her, he/him..." value="they/them" />
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="number" id="age" placeholder="optional" min="0" max="999" />
+          </div>
+          <div class="form-group">
+            <label>Species / Type</label>
+            <input type="text" id="species" placeholder="human, anthropomorphic fox, robot..." value="human" />
+          </div>
+          <div class="form-group">
+            <label>Inspiration / Source</label>
+            <input type="text" id="inspiration" placeholder="original, based on Sonic, Adventure Time OC..." />
+          </div>
+          <div class="form-group full">
+            <label>Created by (your name / Reddit username)</label>
+            <input type="text" id="createdBy" placeholder="u/YourUsername" />
+          </div>
+          <div class="form-group full">
+            <label>Tags</label>
+            <div class="tag-input-wrap" id="tags-wrap">
+              <input type="text" class="tag-input" id="tags-input" placeholder="Type + Enter (e.g. friendly, autistic-coded, cartoon)" />
+            </div>
+            <span class="hint">Press Enter to add. Good tags help people find characters.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PERSONALITY -->
+      <div class="tab-panel" id="tab-personality">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Personality Summary</label>
+            <textarea id="personalitySummary" placeholder="A short, warm description of who they are and how they feel to hang out with..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Traits</label>
+            <div class="tag-input-wrap" id="traits-wrap">
+              <input type="text" class="tag-input" id="traits-input" placeholder="Type + Enter (kind, anxious, curious, dry-humor...)" />
+            </div>
+          </div>
+
+          <!-- D&D Alignment -->
+          <div class="form-group full alignment-section">
+            <label>Alignment (D&amp;D style)</label>
+            <span class="hint">Click one. This gives the AI a clear moral + behavioral compass.</span>
+            <div class="alignment-grid" id="alignment-grid">
+              <button type="button" class="align-btn" data-align="lawful good">
+                <span class="align-name">Lawful Good</span>
+                <span class="align-short">LG</span>
+              </button>
+              <button type="button" class="align-btn" data-align="neutral good">
+                <span class="align-name">Neutral Good</span>
+                <span class="align-short">NG</span>
+              </button>
+              <button type="button" class="align-btn" data-align="chaotic good">
+                <span class="align-name">Chaotic Good</span>
+                <span class="align-short">CG</span>
+              </button>
+              <button type="button" class="align-btn" data-align="lawful neutral">
+                <span class="align-name">Lawful Neutral</span>
+                <span class="align-short">LN</span>
+              </button>
+              <button type="button" class="align-btn selected" data-align="true neutral">
+                <span class="align-name">True Neutral</span>
+                <span class="align-short">TN</span>
+              </button>
+              <button type="button" class="align-btn" data-align="chaotic neutral">
+                <span class="align-name">Chaotic Neutral</span>
+                <span class="align-short">CN</span>
+              </button>
+              <button type="button" class="align-btn" data-align="lawful evil">
+                <span class="align-name">Lawful Evil</span>
+                <span class="align-short">LE</span>
+              </button>
+              <button type="button" class="align-btn" data-align="neutral evil">
+                <span class="align-name">Neutral Evil</span>
+                <span class="align-short">NE</span>
+              </button>
+              <button type="button" class="align-btn" data-align="chaotic evil">
+                <span class="align-name">Chaotic Evil</span>
+                <span class="align-short">CE</span>
+              </button>
+            </div>
+            <div class="alignment-desc" id="alignment-desc">
+              <strong>True Neutral</strong> — Balanced, pragmatic, avoids extremes. Acts according to the situation rather than a strict code or personal freedom.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Energy Level</label>
+            <select id="energyLevel">
+              <option value="low">Low (calm, quiet presence)</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High (energetic, expressive)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Social Style</label>
+            <select id="socialStyle">
+              <option value="introvert">Introvert</option>
+              <option value="ambivert" selected>Ambivert</option>
+              <option value="extrovert">Extrovert</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label>Speech Style / Dialogue Flavor</label>
+            <textarea id="speechStyle" placeholder="How they talk. Soft-spoken? Uses lots of emojis in text? Stutters when excited? Formal? Slang-heavy? Examples help the AI a lot."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Backstory (short)</label>
+            <textarea id="backstory" placeholder="A few sentences max. What shaped them? Why are they in this world?"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPEARANCE -->
+      <div class="tab-panel" id="tab-appearance">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Overall Appearance Description</label>
+            <textarea id="appearanceDesc" placeholder="The main visual description the game / AI will use..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Height</label>
+            <input type="text" id="height" placeholder="e.g. 5'6&quot; / 168 cm / short" />
+          </div>
+          <div class="form-group">
+            <label>Hair</label>
+            <input type="text" id="hair" placeholder="color, style, length..." />
+          </div>
+          <div class="form-group">
+            <label>Eyes</label>
+            <input type="text" id="eyes" placeholder="color, shape, expression..." />
+          </div>
+          <div class="form-group">
+            <label>Clothing Style</label>
+            <input type="text" id="clothingStyle" placeholder="cozy oversized sweaters, cyberpunk jackets..." />
+          </div>
+          <div class="form-group full">
+            <label>Distinctive Features</label>
+            <textarea id="distinctiveFeatures" placeholder="Scars, freckles, accessories, posture, anything memorable..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOCIAL -->
+      <div class="tab-panel" id="tab-social">
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Interests / Hobbies</label>
+            <div class="tag-input-wrap" id="interests-wrap">
+              <input type="text" class="tag-input" id="interests-input" placeholder="Type + Enter" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Likes</label>
+            <div class="tag-input-wrap" id="likes-wrap">
+              <input type="text" class="tag-input" id="likes-input" placeholder="Type + Enter" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Dislikes</label>
+            <div class="tag-input-wrap" id="dislikes-wrap">
+              <input type="text" class="tag-input" id="dislikes-input" placeholder="Type + Enter" />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Preferred Activities (things they'd enjoy doing together)</label>
+            <div class="tag-input-wrap" id="activities-wrap">
+              <input type="text" class="tag-input" id="activities-input" placeholder="quiet walks, gaming, cooking, deep talks..." />
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Comfort Zones / Safe Topics</label>
+            <div class="tag-input-wrap" id="comfort-wrap">
+              <input type="text" class="tag-input" id="comfort-input" placeholder="animals, music, special interests..." />
+            </div>
+            <span class="hint">Helpful for the game to know what topics feel safe and enjoyable.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADVANCED -->
+      <div class="tab-panel" id="tab-advanced">
+        <div class="advanced-note">
+          For developers & power users. You can edit the raw JSON directly. Changes here will overwrite the form when you click “Apply Raw JSON”.
+        </div>
+        <div class="form-group full">
+          <label>Notes (internal / for the game AI)</label>
+          <textarea id="notes" placeholder="Anything extra the game should know about this character..."></textarea>
+        </div>
+        <div class="form-group full" style="margin-top: 1rem;">
+          <label>Raw JSON Editor</label>
+          <textarea id="raw-json" spellcheck="false"></textarea>
+        </div>
+        <div class="footer-actions">
+          <button class="btn btn-primary" onclick="applyRawJson()">Apply Raw JSON → Form</button>
+          <button class="btn" onclick="syncRawFromForm()">Form → Raw JSON</button>
+        </div>
+      </div>
+
+      <!-- Bottom actions -->
+      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border);">
+        <div class="footer-actions" style="margin:0; padding:0; border:none;">
+          <button class="btn btn-success" onclick="downloadJson()">⬇ Download JSON</button>
+          <button class="btn" onclick="copyJson()">Copy JSON</button>
+          <button class="btn" onclick="loadJsonFile()">Load JSON File</button>
+          <button class="btn btn-danger" onclick="resetForm()">Reset</button>
+        </div>
+        <div id="status" class="status"></div>
+        <input type="file" id="file-input" accept=".json,application/json" style="display:none" onchange="handleFileLoad(event)" />
+      </div>
+    </div>
+
+    <!-- Preview Card -->
+    <div class="card">
+      <div class="preview-header">
+        <h2>Live JSON Preview</h2>
+        <div class="preview-actions">
+          <button class="btn" onclick="downloadJson()" title="Download">⬇</button>
+        </div>
+      </div>
+      <pre id="json-preview"><span class="empty-state">Start filling the form…</span></pre>
+    </div>
+  </div>
+
+  <script>
+    // ---------- Alignment data ----------
+    const ALIGNMENTS = {
+      "lawful good": {
+        name: "Lawful Good",
+        desc: "Believes in order, compassion, and doing the right thing through rules and institutions. Honorable, protective, and reliable."
+      },
+      "neutral good": {
+        name: "Neutral Good",
+        desc: "Does the best they can to help others without being overly bound by rules or chaos. Kind-hearted and pragmatic about methods."
+      },
+      "chaotic good": {
+        name: "Chaotic Good",
+        desc: "Follows their conscience and fights for freedom and good, even if it means breaking rules. Rebellious hero energy."
+      },
+      "lawful neutral": {
+        name: "Lawful Neutral",
+        desc: "Values order, tradition, and personal or organizational codes above good or evil. Reliable, structured, duty-focused."
+      },
+      "true neutral": {
+        name: "True Neutral",
+        desc: "Balanced, pragmatic, avoids extremes. Acts according to the situation rather than a strict code or personal freedom."
+      },
+      "chaotic neutral": {
+        name: "Chaotic Neutral",
+        desc: "Values personal freedom above all. Unpredictable, independent, follows their own whims. Not necessarily malicious."
+      },
+      "lawful evil": {
+        name: "Lawful Evil",
+        desc: "Uses rules, hierarchy, and systems to gain power or control. Methodical, ambitious, often ‘the villain who keeps their word’."
+      },
+      "neutral evil": {
+        name: "Neutral Evil",
+        desc: "Selfish and ruthless without strong loyalty to law or chaos. Does whatever benefits them most, no matter who gets hurt."
+      },
+      "chaotic evil": {
+        name: "Chaotic Evil",
+        desc: "Driven by rage, greed, or pure destructive impulse. Unpredictable, violent, and rejects any restraint."
+      }
+    };
+
+    let currentAlignment = "true neutral";
+
+    // ---------- State ----------
+    const tagFields = {
+      tags: [],
+      traits: [],
+      interests: [],
+      likes: [],
+      dislikes: [],
+      preferredActivities: [],
+      comfortZones: []
+    };
+
+    // ---------- Helpers ----------
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'character';
+    }
+
+    function showStatus(msg, isError = false) {
+      const el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status show ' + (isError ? 'err' : 'ok');
+      setTimeout(() => el.classList.remove('show'), 4000);
+    }
+
+    // ---------- Alignment UI ----------
+    function setAlignment(value) {
+      currentAlignment = value;
+      document.querySelectorAll('.align-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.align === value);
+      });
+      const info = ALIGNMENTS[value] || ALIGNMENTS["true neutral"];
+      document.getElementById('alignment-desc').innerHTML =
+        `<strong>${info.name}</strong> — ${info.desc}`;
+      updatePreview();
+    }
+
+    document.getElementById('alignment-grid').addEventListener('click', e => {
+      const btn = e.target.closest('.align-btn');
+      if (btn) setAlignment(btn.dataset.align);
+    });
+
+    // ---------- Tag system ----------
+    function renderTags(field) {
+      const wrap = document.getElementById(field + '-wrap');
+      const input = document.getElementById(field + '-input');
+      if (!wrap || !input) return;
+      wrap.querySelectorAll('.tag').forEach(t => t.remove());
+      tagFields[field].forEach((val, idx) => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `${escapeHtml(val)} <button type="button" data-field="${field}" data-idx="${idx}">×</button>`;
+        wrap.insertBefore(tag, input);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function addTag(field, value) {
+      value = value.trim();
+      if (!value) return;
+      if (!tagFields[field].includes(value)) {
+        tagFields[field].push(value);
+        renderTags(field);
+        updatePreview();
+      }
+    }
+
+    // Wire up tag inputs
+    ['tags','traits','interests','likes','dislikes','activities','comfort'].forEach(key => {
+      const fieldMap = {
+        tags: 'tags',
+        traits: 'traits',
+        interests: 'interests',
+        likes: 'likes',
+        dislikes: 'dislikes',
+        activities: 'preferredActivities',
+        comfort: 'comfortZones'
+      };
+      const field = fieldMap[key];
+      const input = document.getElementById(key + '-input');
+      if (!input) return;
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          addTag(field, input.value);
+          input.value = '';
+        }
+      });
+
+      input.addEventListener('blur', () => {
+        if (input.value.trim()) {
+          addTag(field, input.value);
+          input.value = '';
+        }
+      });
+    });
+
+    // Remove tag clicks
+    document.addEventListener('click', e => {
+      if (e.target.matches('.tag button')) {
+        const field = e.target.dataset.field;
+        const idx = parseInt(e.target.dataset.idx, 10);
+        tagFields[field].splice(idx, 1);
+        renderTags(field);
+        updatePreview();
+      }
+    });
+
+    // ---------- Build character object ----------
+    function buildCharacter() {
+      const name = document.getElementById('name').value.trim();
+      let id = document.getElementById('id').value.trim();
+      if (!id && name) id = slugify(name);
+
+      const ageVal = document.getElementById('age').value;
+      const age = ageVal === '' ? null : Number(ageVal);
+
+      const alignInfo = ALIGNMENTS[currentAlignment] || ALIGNMENTS["true neutral"];
+
+      return {
+        id: id || 'unnamed-character',
+        name: name || 'Unnamed Character',
+        pronouns: document.getElementById('pronouns').value.trim() || 'they/them',
+        age: age,
+        species: document.getElementById('species').value.trim() || 'human',
+        inspiration: document.getElementById('inspiration').value.trim() || 'original',
+        alignment: currentAlignment,
+        alignmentDescription: alignInfo.desc,
+        appearance: {
+          description: document.getElementById('appearanceDesc').value.trim(),
+          height: document.getElementById('height').value.trim(),
+          hair: document.getElementById('hair').value.trim(),
+          eyes: document.getElementById('eyes').value.trim(),
+          clothingStyle: document.getElementById('clothingStyle').value.trim(),
+          distinctiveFeatures: document.getElementById('distinctiveFeatures').value.trim()
+        },
+        personality: {
+          summary: document.getElementById('personalitySummary').value.trim(),
+          traits: [...tagFields.traits],
+          energyLevel: document.getElementById('energyLevel').value,
+          socialStyle: document.getElementById('socialStyle').value
+        },
+        interests: [...tagFields.interests],
+        likes: [...tagFields.likes],
+        dislikes: [...tagFields.dislikes],
+        backstory: document.getElementById('backstory').value.trim(),
+        speechStyle: document.getElementById('speechStyle').value.trim(),
+        preferredActivities: [...tagFields.preferredActivities],
+        comfortZones: [...tagFields.comfortZones],
+        tags: [...tagFields.tags],
+        createdBy: document.getElementById('createdBy').value.trim(),
+        notes: document.getElementById('notes').value.trim(),
+        version: "1.1"
+      };
+    }
+
+    function updatePreview() {
+      const char = buildCharacter();
+      const pretty = JSON.stringify(char, null, 2);
+      document.getElementById('json-preview').textContent = pretty;
+      const raw = document.getElementById('raw-json');
+      if (document.activeElement !== raw) {
+        raw.value = pretty;
+      }
+    }
+
+    // Live update on any input
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.id === 'raw-json') return;
+      el.addEventListener('input', updatePreview);
+      el.addEventListener('change', updatePreview);
+    });
+
+    // Auto-slug when name changes and id is empty
+    document.getElementById('name').addEventListener('input', () => {
+      const idField = document.getElementById('id');
+      if (!idField.dataset.userEdited) {
+        idField.value = slugify(document.getElementById('name').value);
+      }
+      updatePreview();
+    });
+    document.getElementById('id').addEventListener('input', () => {
+      document.getElementById('id').dataset.userEdited = '1';
+    });
+
+    // ---------- Tabs ----------
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ---------- Actions ----------
+    function downloadJson() {
+      const char = buildCharacter();
+      if (!char.name || char.name === 'Unnamed Character') {
+        showStatus('Please give the character a name first.', true);
+        return;
+      }
+      const blob = new Blob([JSON.stringify(char, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (char.id || 'character') + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showStatus('Downloaded ' + a.download);
+    }
+
+    function copyJson() {
+      const text = JSON.stringify(buildCharacter(), null, 2);
+      navigator.clipboard.writeText(text).then(() => {
+        showStatus('JSON copied to clipboard');
+      }).catch(() => showStatus('Copy failed – try downloading instead', true));
+    }
+
+    function loadJsonFile() {
+      document.getElementById('file-input').click();
+    }
+
+    function handleFileLoad(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          populateForm(data);
+          showStatus('Loaded ' + file.name);
+        } catch (err) {
+          showStatus('Invalid JSON file', true);
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    function populateForm(data) {
+      document.getElementById('name').value = data.name || '';
+      document.getElementById('id').value = data.id || '';
+      document.getElementById('id').dataset.userEdited = data.id ? '1' : '';
+      document.getElementById('pronouns').value = data.pronouns || 'they/them';
+      document.getElementById('age').value = data.age ?? '';
+      document.getElementById('species').value = data.species || 'human';
+      document.getElementById('inspiration').value = data.inspiration || '';
+      document.getElementById('createdBy').value = data.createdBy || '';
+
+      document.getElementById('personalitySummary').value = data.personality?.summary || '';
+      document.getElementById('energyLevel').value = data.personality?.energyLevel || 'medium';
+      document.getElementById('socialStyle').value = data.personality?.socialStyle || 'ambivert';
+      document.getElementById('speechStyle').value = data.speechStyle || '';
+      document.getElementById('backstory').value = data.backstory || '';
+
+      document.getElementById('appearanceDesc').value = data.appearance?.description || '';
+      document.getElementById('height').value = data.appearance?.height || '';
+      document.getElementById('hair').value = data.appearance?.hair || '';
+      document.getElementById('eyes').value = data.appearance?.eyes || '';
+      document.getElementById('clothingStyle').value = data.appearance?.clothingStyle || '';
+      document.getElementById('distinctiveFeatures').value = data.appearance?.distinctiveFeatures || '';
+
+      document.getElementById('notes').value = data.notes || '';
+
+      // Alignment
+      const align = (data.alignment || 'true neutral').toLowerCase();
+      if (ALIGNMENTS[align]) {
+        setAlignment(align);
+      } else {
+        setAlignment('true neutral');
+      }
+
+      // tags
+      tagFields.tags = Array.isArray(data.tags) ? [...data.tags] : [];
+      tagFields.traits = Array.isArray(data.personality?.traits) ? [...data.personality.traits] : [];
+      tagFields.interests = Array.isArray(data.interests) ? [...data.interests] : [];
+      tagFields.likes = Array.isArray(data.likes) ? [...data.likes] : [];
+      tagFields.dislikes = Array.isArray(data.dislikes) ? [...data.dislikes] : [];
+      tagFields.preferredActivities = Array.isArray(data.preferredActivities) ? [...data.preferredActivities] : [];
+      tagFields.comfortZones = Array.isArray(data.comfortZones) ? [...data.comfortZones] : [];
+
+      ['tags','traits','interests','likes','dislikes','preferredActivities','comfortZones'].forEach(f => renderTags(f));
+      updatePreview();
+    }
+
+    function applyRawJson() {
+      try {
+        const data = JSON.parse(document.getElementById('raw-json').value);
+        populateForm(data);
+        showStatus('Raw JSON applied to form');
+      } catch (err) {
+        showStatus('Invalid JSON – fix syntax first', true);
+      }
+    }
+
+    function syncRawFromForm() {
+      document.getElementById('raw-json').value = JSON.stringify(buildCharacter(), null, 2);
+      showStatus('Form synced to raw editor');
+    }
+
+    function resetForm() {
+      if (!confirm('Clear the entire form?')) return;
+      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
+        if (el.id !== 'raw-json') el.value = '';
+      });
+      document.getElementById('pronouns').value = 'they/them';
+      document.getElementById('species').value = 'human';
+      document.getElementById('energyLevel').value = 'medium';
+      document.getElementById('socialStyle').value = 'ambivert';
+      document.getElementById('id').dataset.userEdited = '';
+      Object.keys(tagFields).forEach(k => { tagFields[k] = []; renderTags(k); });
+      setAlignment('true neutral');
+      updatePreview();
+      showStatus('Form reset');
+    }
+
+    // Initial render
+    setAlignment('true neutral');
+    updatePreview();
+  </script>
+</body>
+</html>
