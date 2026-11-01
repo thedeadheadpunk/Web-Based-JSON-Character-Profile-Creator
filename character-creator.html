@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Character Profile Creator – Hangout Simulator</title>
+  <title>Character Creator – Infinite Cast (v1)</title>
   <style>
     :root {
       --bg: #0f1117;
@@ -20,9 +20,7 @@
       --radius: 10px;
       --font: "Segoe UI", system-ui, -apple-system, sans-serif;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: var(--font);
       background: var(--bg);
@@ -31,395 +29,264 @@
       min-height: 100vh;
       padding: 1.5rem;
     }
-
     .container {
-      max-width: 1200px;
+      max-width: 1280px;
       margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 380px;
       gap: 1.5rem;
       align-items: start;
     }
-
-    @media (max-width: 900px) {
-      .container { grid-template-columns: 1fr; }
-    }
-
-    header {
-      grid-column: 1 / -1;
-      margin-bottom: 0.5rem;
-    }
-
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 650;
-      letter-spacing: -0.02em;
-    }
-
-    header p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-top: 0.25rem;
-    }
-
+    @media (max-width: 960px) { .container { grid-template-columns: 1fr; } }
+    header { grid-column: 1 / -1; margin-bottom: 0.5rem; }
+    header h1 { font-size: 1.55rem; font-weight: 650; letter-spacing: -0.02em; }
+    header p { color: var(--text-muted); font-size: 0.92rem; margin-top: 0.25rem; }
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
     }
-
     .tabs {
       display: flex;
       flex-wrap: wrap;
       background: var(--surface2);
       border-bottom: 1px solid var(--border);
     }
-
     .tab-btn {
       flex: 1;
-      min-width: 90px;
-      padding: 0.75rem 0.5rem;
+      min-width: 72px;
+      padding: 0.65rem 0.3rem;
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.9rem;
+      font-size: 0.8rem;
       font-weight: 500;
       cursor: pointer;
       transition: all 0.15s;
       border-bottom: 2px solid transparent;
     }
-
     .tab-btn:hover { color: var(--text); background: rgba(255,255,255,0.03); }
     .tab-btn.active {
       color: var(--accent);
       border-bottom-color: var(--accent);
       background: rgba(124,156,255,0.08);
     }
-
-    .tab-panel {
-      display: none;
-      padding: 1.25rem;
-    }
+    .tab-panel { display: none; padding: 1.25rem; }
     .tab-panel.active { display: block; }
-
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
     }
-
-    @media (max-width: 600px) {
-      .form-grid { grid-template-columns: 1fr; }
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
     .form-group.full { grid-column: 1 / -1; }
-
-    label {
-      font-size: 0.82rem;
-      font-weight: 550;
-      color: var(--text-muted);
-      letter-spacing: 0.01em;
-    }
-
+    label { font-size: 0.82rem; font-weight: 550; color: var(--text-muted); }
     label .required { color: var(--danger); }
-
-    input[type="text"],
-    input[type="number"],
-    select,
-    textarea {
+    input[type="text"], input[type="number"], select, textarea {
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
       color: var(--text);
-      font-size: 0.95rem;
+      padding: 0.55rem 0.7rem;
+      font-size: 0.92rem;
       font-family: inherit;
-      transition: border-color 0.15s;
       width: 100%;
     }
-
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124,156,255,0.15);
+      box-shadow: 0 0 0 2px rgba(124,156,255,0.2);
     }
-
-    textarea {
-      min-height: 90px;
-      resize: vertical;
-      line-height: 1.45;
-    }
-
-    .hint {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      opacity: 0.85;
-    }
-
-    /* Tag / multi-value inputs */
+    textarea { min-height: 80px; resize: vertical; }
+    .hint { font-size: 0.75rem; color: var(--text-muted); opacity: 0.85; }
     .tag-input-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      padding: 0.4rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      min-height: 42px;
-      align-items: center;
+      display: flex; flex-wrap: wrap; gap: 0.35rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 0.4rem; min-height: 42px;
     }
-
-    .tag-input-wrap:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124,156,255,0.15);
-    }
-
     .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
       background: rgba(124,156,255,0.15);
       color: var(--accent);
+      border-radius: 4px;
       padding: 0.2rem 0.5rem;
-      border-radius: 5px;
-      font-size: 0.82rem;
-      font-weight: 500;
+      font-size: 0.8rem;
+      display: inline-flex; align-items: center; gap: 0.3rem;
     }
-
     .tag button {
-      background: none;
-      border: none;
-      color: var(--accent);
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-      padding: 0;
-      opacity: 0.7;
+      background: none; border: none; color: inherit;
+      cursor: pointer; font-size: 0.9rem; line-height: 1; opacity: 0.7;
     }
     .tag button:hover { opacity: 1; }
-
     .tag-input {
-      flex: 1;
-      min-width: 100px;
-      border: none !important;
-      background: transparent !important;
+      flex: 1; min-width: 100px; border: none !important;
+      background: transparent !important; padding: 0.2rem !important;
       box-shadow: none !important;
-      padding: 0.25rem !important;
     }
-
-    /* ===== Alignment Grid (D&D 3x3) ===== */
-    .alignment-section {
-      margin-top: 0.5rem;
+    /* Abilities */
+    .ability-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
     }
-
+    @media (max-width: 600px) { .ability-grid { grid-template-columns: 1fr 1fr; } }
+    .ability-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem;
+      text-align: center;
+    }
+    .ability-card label { display: block; margin-bottom: 0.3rem; font-weight: 600; }
+    .ability-card input { text-align: center; font-size: 1.15rem; font-weight: 600; }
+    .mod-display {
+      font-size: 0.8rem; color: var(--accent); margin-top: 0.25rem;
+    }
+    /* Senses sliders */
+    .sense-row {
+      display: grid;
+      grid-template-columns: 90px 1fr 42px;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.7rem;
+    }
+    .sense-row label { margin: 0; font-weight: 550; }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none;
+      width: 100%; height: 6px;
+      background: var(--border);
+      border-radius: 3px; outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; appearance: none;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: 2px solid var(--surface);
+    }
+    .sense-val {
+      font-weight: 650; text-align: center;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+    .sense-presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+    .preset-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+    }
+    .preset-btn:hover { border-color: var(--accent); color: var(--text); }
+    /* Alignment */
     .alignment-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      margin-top: 0.5rem;
+      gap: 0.4rem;
     }
-
     .align-btn {
-      position: relative;
-      padding: 0.7rem 0.4rem;
       background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-align: center;
+      border-radius: 6px;
+      padding: 0.5rem 0.3rem;
       cursor: pointer;
+      text-align: center;
+      color: var(--text-muted);
       transition: all 0.15s;
-      line-height: 1.25;
     }
-
-    .align-btn:hover {
-      border-color: var(--accent);
-      color: var(--text);
-      background: rgba(124,156,255,0.08);
-    }
-
+    .align-btn:hover { border-color: var(--accent); }
     .align-btn.selected {
       border-color: var(--accent);
-      background: rgba(124,156,255,0.18);
-      color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(124,156,255,0.25);
-    }
-
-    .align-btn .align-name {
-      display: block;
-      font-size: 0.82rem;
-    }
-
-    .align-btn .align-short {
-      display: block;
-      font-size: 0.7rem;
-      opacity: 0.7;
-      font-weight: 500;
-      margin-top: 0.15rem;
-    }
-
-    .alignment-desc {
-      margin-top: 0.75rem;
-      padding: 0.7rem 0.9rem;
-      background: rgba(124,156,255,0.07);
-      border: 1px solid rgba(124,156,255,0.2);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      color: var(--text);
-      min-height: 3.2rem;
-    }
-
-    .alignment-desc strong {
+      background: rgba(124,156,255,0.12);
       color: var(--accent);
     }
-
-    /* Preview panel */
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.85rem 1rem;
-      background: var(--surface2);
+    .align-name { display: block; font-size: 0.78rem; font-weight: 550; }
+    .align-short { font-size: 0.7rem; opacity: 0.7; }
+    /* Toon / checkboxes */
+    .check-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      margin-bottom: 0.6rem;
+    }
+    .check-row input[type="checkbox"] {
+      width: 18px; height: 18px; accent-color: var(--accent);
+    }
+    /* Sidebar */
+    .sidebar { position: sticky; top: 1rem; }
+    .sidebar .card { margin-bottom: 1rem; }
+    .sidebar h3 {
+      font-size: 0.85rem; font-weight: 600;
+      padding: 0.7rem 1rem;
       border-bottom: 1px solid var(--border);
-    }
-
-    .preview-header h2 {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .preview-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    button.btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.45rem 0.85rem;
-      border-radius: 7px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text);
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-
-    button.btn:hover {
       background: var(--surface2);
-      border-color: #3d4459;
     }
-
-    button.btn-primary {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #0f1117;
-      font-weight: 600;
-    }
-    button.btn-primary:hover {
-      background: var(--accent-hover);
-      border-color: var(--accent-hover);
-    }
-
-    button.btn-success {
-      background: var(--success);
-      border-color: var(--success);
-      color: #0f1117;
-      font-weight: 600;
-    }
-
-    button.btn-danger {
-      background: transparent;
-      border-color: var(--danger);
-      color: var(--danger);
-    }
-    button.btn-danger:hover {
-      background: rgba(248,113,113,0.1);
-    }
-
-    pre#json-preview {
-      margin: 0;
-      padding: 1rem;
-      font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
-      font-size: 0.78rem;
-      line-height: 1.45;
-      overflow: auto;
-      max-height: 65vh;
+    .sidebar-body { padding: 0.85rem 1rem; }
+    #json-preview {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
       white-space: pre-wrap;
-      word-break: break-word;
-      color: #c8d0e0;
-    }
-
-    .status {
-      font-size: 0.8rem;
-      padding: 0.4rem 0.75rem;
-      border-radius: 6px;
-      margin-top: 0.75rem;
-      display: none;
-    }
-    .status.show { display: block; }
-    .status.ok { background: rgba(74,222,128,0.12); color: var(--success); }
-    .status.err { background: rgba(248,113,113,0.12); color: var(--danger); }
-
-    .footer-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      margin-top: 1.25rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .advanced-note {
-      background: rgba(251,191,36,0.08);
-      border: 1px solid rgba(251,191,36,0.25);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      color: var(--warning);
-      margin-bottom: 1rem;
-    }
-
-    #raw-json {
-      font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
-      font-size: 0.82rem;
-      min-height: 320px;
-    }
-
-    .empty-state {
+      word-break: break-all;
+      max-height: 420px;
+      overflow-y: auto;
       color: var(--text-muted);
-      font-size: 0.9rem;
-      text-align: center;
-      padding: 2rem 1rem;
     }
+    .btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn {
+      background: var(--accent);
+      color: #0f1117;
+      border: none;
+      border-radius: 6px;
+      padding: 0.55rem 1rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn.secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn.secondary:hover { border-color: var(--accent); }
+    .btn.danger { background: var(--danger); color: #fff; }
+    .section-title {
+      font-size: 0.95rem; font-weight: 600;
+      margin: 1.1rem 0 0.6rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border);
+      grid-column: 1 / -1;
+    }
+    .skill-row {
+      display: grid;
+      grid-template-columns: 110px 70px 1fr 50px;
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.45rem;
+    }
+    .skill-row label { margin: 0; }
+    .skill-total { font-weight: 600; color: var(--accent); text-align: center; }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>Character Profile Creator</h1>
-      <p>Create a character JSON for the hangout simulator. Designed for community contributions (friendly + advanced options).</p>
+      <h1>Character Creator — Infinite Cast</h1>
+      <p>Outputs <code>infinite-cast.character.v1</code>. Characters are the observers that establish the world. Senses, abilities, and perception matter.</p>
     </header>
 
-    <!-- Form Card -->
     <div class="card">
       <div class="tabs">
         <button class="tab-btn active" data-tab="basic">Basic</button>
+        <button class="tab-btn" data-tab="abilities">Abilities</button>
+        <button class="tab-btn" data-tab="senses">Senses</button>
         <button class="tab-btn" data-tab="personality">Personality</button>
-        <button class="tab-btn" data-tab="appearance">Appearance</button>
         <button class="tab-btn" data-tab="social">Social</button>
+        <button class="tab-btn" data-tab="appearance">Appearance</button>
+        <button class="tab-btn" data-tab="voice">Voice</button>
         <button class="tab-btn" data-tab="advanced">Advanced</button>
       </div>
 
@@ -428,39 +295,118 @@
         <div class="form-grid">
           <div class="form-group">
             <label>Name <span class="required">*</span></label>
-            <input type="text" id="name" placeholder="e.g. Luna Starwhisper" />
+            <input type="text" id="name" placeholder="e.g. Thundarr the Barbarian" />
           </div>
           <div class="form-group">
             <label>ID / Slug</label>
-            <input type="text" id="id" placeholder="auto-generated from name" />
-            <span class="hint">Lowercase, hyphens only. Leave blank to auto-create.</span>
+            <input type="text" id="id" placeholder="auto from name" />
+            <span class="hint">Lowercase, hyphens allowed. Leave blank to auto-generate.</span>
           </div>
           <div class="form-group">
             <label>Pronouns</label>
-            <input type="text" id="pronouns" placeholder="they/them, she/her, he/him..." value="they/them" />
+            <input type="text" id="pronouns" placeholder="he/him, she/her, they/them..." value="they/them" />
           </div>
           <div class="form-group">
-            <label>Age</label>
-            <input type="number" id="age" placeholder="optional" min="0" max="999" />
+            <label>Called (short name)</label>
+            <input type="text" id="called" placeholder="optional nickname" />
           </div>
           <div class="form-group">
-            <label>Species / Type</label>
-            <input type="text" id="species" placeholder="human, anthropomorphic fox, robot..." value="human" />
+            <label>Role</label>
+            <input type="text" id="role" placeholder="Warrior, Scavenger, Comic relief..." />
           </div>
           <div class="form-group">
-            <label>Inspiration / Source</label>
-            <input type="text" id="inspiration" placeholder="original, based on Sonic, Adventure Time OC..." />
+            <label>Kind / Species</label>
+            <input type="text" id="kind" placeholder="Human, Robot, Mutant..." value="Human" />
+          </div>
+          <div class="form-group">
+            <label>Origin / Franchise</label>
+            <input type="text" id="origin" placeholder="Thundarr the Barbarian, original..." />
+          </div>
+          <div class="form-group">
+            <label>Communication</label>
+            <select id="communication">
+              <option value="normal">Normal speech</option>
+              <option value="nonverbal">Nonverbal (gestures, expressions)</option>
+              <option value="limited">Limited speech</option>
+              <option value="sounds">Sounds / vocalizations only</option>
+            </select>
+            <span class="hint">Mr. Bean = nonverbal. Gruk = sounds.</span>
           </div>
           <div class="form-group full">
-            <label>Created by (your name / Reddit username)</label>
-            <input type="text" id="createdBy" placeholder="u/YourUsername" />
+            <label>Summary</label>
+            <textarea id="summary" placeholder="Who they are in 2–4 sentences. This becomes the core identity text."></textarea>
           </div>
           <div class="form-group full">
-            <label>Tags</label>
-            <div class="tag-input-wrap" id="tags-wrap">
-              <input type="text" class="tag-input" id="tags-input" placeholder="Type + Enter (e.g. friendly, autistic-coded, cartoon)" />
-            </div>
-            <span class="hint">Press Enter to add. Good tags help people find characters.</span>
+            <label>Hook (how they act with the party)</label>
+            <textarea id="hook" placeholder="Decisive and protective. Suggests direct action. Suspicious of magic..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ABILITIES -->
+      <div class="tab-panel" id="tab-abilities">
+        <p class="hint" style="margin-bottom:1rem">Standard 3–18 scores. Mods are computed automatically ((score−10)//2). Perception skill total already includes Wisdom; the engine will not double-count.</p>
+        <div class="ability-grid" id="ability-grid">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="section-title">Key Skills</div>
+        <p class="hint" style="margin-bottom:0.75rem">Ranks are training. Total = ability mod + ranks (shown live). Perception is the most important for world establishment.</p>
+        <div id="skills-area">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="section-title">Toon Force</div>
+        <div class="check-row">
+          <input type="checkbox" id="toonForce" />
+          <label for="toonForce" style="margin:0">Has Toon Force</label>
+        </div>
+        <div class="form-group">
+          <label>Toon Note</label>
+          <input type="text" id="toonNote" placeholder="What kind of cartoon physics / gags this character can do" />
+          <span class="hint">One major Toon rewrite of an obstacle is available (🎭 button). Small random gags may also fire.</span>
+        </div>
+      </div>
+
+      <!-- SENSES -->
+      <div class="tab-panel" id="tab-senses">
+        <p class="hint" style="margin-bottom:0.75rem">
+          Acuity scales (0–10). 0 = absent, 5 = average human, 10 = exceptional.
+          These become machine-readable so the engine can eventually enforce sensory channels.
+          Free-text fields below still color how the AI describes what the character notices.
+        </p>
+
+        <div class="sense-presets">
+          <button type="button" class="preset-btn" data-preset="human">Average Human</button>
+          <button type="button" class="preset-btn" data-preset="helen">Sensory Deprivation (Helen Keller style)</button>
+          <button type="button" class="preset-btn" data-preset="bloodhound">Keen Smell</button>
+          <button type="button" class="preset-btn" data-preset="eagle">Keen Sight</button>
+          <button type="button" class="preset-btn" data-preset="bat">Keen Hearing</button>
+          <button type="button" class="preset-btn" data-preset="blind">Blind</button>
+          <button type="button" class="preset-btn" data-preset="deaf">Deaf</button>
+        </div>
+
+        <div id="sense-sliders">
+          <!-- filled by JS -->
+        </div>
+
+        <div class="section-title">Observation Flavor (free text for the AI)</div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Notices</label>
+            <input type="text" id="senses-notices" placeholder="threats, fresh tracks, who is afraid..." />
+          </div>
+          <div class="form-group full">
+            <label>Misses</label>
+            <input type="text" id="senses-misses" placeholder="subtle jokes, magic tricks, quiet details..." />
+          </div>
+          <div class="form-group full">
+            <label>Reads People</label>
+            <input type="text" id="senses-readsPeople" placeholder="by how they stand when danger comes..." />
+          </div>
+          <div class="form-group full">
+            <label>Enters a Place</label>
+            <input type="text" id="senses-entersPlace" placeholder="checks the exits and the high ground..." />
           </div>
         </div>
       </div>
@@ -469,86 +415,106 @@
       <div class="tab-panel" id="tab-personality">
         <div class="form-grid">
           <div class="form-group full">
-            <label>Personality Summary</label>
-            <textarea id="personalitySummary" placeholder="A short, warm description of who they are and how they feel to hang out with..."></textarea>
-          </div>
-          <div class="form-group full">
             <label>Traits</label>
             <div class="tag-input-wrap" id="traits-wrap">
-              <input type="text" class="tag-input" id="traits-input" placeholder="Type + Enter (kind, anxious, curious, dry-humor...)" />
+              <input type="text" class="tag-input" id="traits-input" placeholder="Type + Enter (brave, honorable, blunt...)" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Virtue</label>
+            <input type="text" id="virtue" placeholder="Courage" />
+          </div>
+          <div class="form-group">
+            <label>Flaw</label>
+            <input type="text" id="flaw" placeholder="Quick temper" />
+          </div>
+          <div class="form-group">
+            <label>Wants</label>
+            <input type="text" id="wants" placeholder="to protect the weak" />
+          </div>
+          <div class="form-group">
+            <label>Fears</label>
+            <input type="text" id="fears" placeholder="wizards and tricks" />
+          </div>
+          <div class="form-group full">
+            <label>Speech Style</label>
+            <textarea id="speech" placeholder="Gruff and declarative, short strong sentences..."></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Sample Lines</label>
+            <div class="tag-input-wrap" id="sampleLines-wrap">
+              <input type="text" class="tag-input" id="sampleLines-input" placeholder="Type a line + Enter" />
             </div>
           </div>
 
-          <!-- D&D Alignment -->
-          <div class="form-group full alignment-section">
-            <label>Alignment (D&amp;D style)</label>
-            <span class="hint">Click one. This gives the AI a clear moral + behavioral compass.</span>
-            <div class="alignment-grid" id="alignment-grid">
-              <button type="button" class="align-btn" data-align="lawful good">
-                <span class="align-name">Lawful Good</span>
-                <span class="align-short">LG</span>
-              </button>
-              <button type="button" class="align-btn" data-align="neutral good">
-                <span class="align-name">Neutral Good</span>
-                <span class="align-short">NG</span>
-              </button>
-              <button type="button" class="align-btn" data-align="chaotic good">
-                <span class="align-name">Chaotic Good</span>
-                <span class="align-short">CG</span>
-              </button>
-              <button type="button" class="align-btn" data-align="lawful neutral">
-                <span class="align-name">Lawful Neutral</span>
-                <span class="align-short">LN</span>
-              </button>
-              <button type="button" class="align-btn selected" data-align="true neutral">
-                <span class="align-name">True Neutral</span>
-                <span class="align-short">TN</span>
-              </button>
-              <button type="button" class="align-btn" data-align="chaotic neutral">
-                <span class="align-name">Chaotic Neutral</span>
-                <span class="align-short">CN</span>
-              </button>
-              <button type="button" class="align-btn" data-align="lawful evil">
-                <span class="align-name">Lawful Evil</span>
-                <span class="align-short">LE</span>
-              </button>
-              <button type="button" class="align-btn" data-align="neutral evil">
-                <span class="align-name">Neutral Evil</span>
-                <span class="align-short">NE</span>
-              </button>
-              <button type="button" class="align-btn" data-align="chaotic evil">
-                <span class="align-name">Chaotic Evil</span>
-                <span class="align-short">CE</span>
-              </button>
-            </div>
-            <div class="alignment-desc" id="alignment-desc">
-              <strong>True Neutral</strong> — Balanced, pragmatic, avoids extremes. Acts according to the situation rather than a strict code or personal freedom.
-            </div>
+          <div class="form-group full">
+            <label>Alignment</label>
+            <div class="alignment-grid" id="alignment-grid"></div>
           </div>
+        </div>
+      </div>
 
+      <!-- SOCIAL -->
+      <div class="tab-panel" id="tab-social">
+        <div class="form-grid">
           <div class="form-group">
-            <label>Energy Level</label>
-            <select id="energyLevel">
-              <option value="low">Low (calm, quiet presence)</option>
-              <option value="medium" selected>Medium</option>
-              <option value="high">High (energetic, expressive)</option>
-            </select>
+            <label>Likes</label>
+            <input type="text" id="likes" placeholder="justice, courage, honesty..." />
           </div>
           <div class="form-group">
-            <label>Social Style</label>
-            <select id="socialStyle">
-              <option value="introvert">Introvert</option>
-              <option value="ambivert" selected>Ambivert</option>
-              <option value="extrovert">Extrovert</option>
-            </select>
+            <label>Dislikes</label>
+            <input type="text" id="dislikes" placeholder="sorcerers, tyrants, cowards..." />
+          </div>
+          <div class="form-group">
+            <label>In a Group</label>
+            <input type="text" id="inGroup" placeholder="Stands in front of the group" />
+          </div>
+          <div class="form-group">
+            <label>In Conflict</label>
+            <input type="text" id="inConflict" placeholder="Faces it head-on" />
+          </div>
+          <div class="form-group">
+            <label>Recruit Difficulty (1–5)</label>
+            <input type="number" id="recruitDifficulty" min="1" max="5" value="2" />
+            <span class="hint">Creator 1–5 is doubled by the engine to the game's 2–10 scale.</span>
+          </div>
+          <div class="form-group">
+            <label>Energy (1–5)</label>
+            <input type="number" id="energy" min="1" max="5" value="3" />
           </div>
           <div class="form-group full">
-            <label>Speech Style / Dialogue Flavor</label>
-            <textarea id="speechStyle" placeholder="How they talk. Soft-spoken? Uses lots of emojis in text? Stutters when excited? Formal? Slang-heavy? Examples help the AI a lot."></textarea>
+            <label>Comfort</label>
+            <input type="text" id="comfort" placeholder="Quiet fire and a clear sky" />
           </div>
           <div class="form-group full">
-            <label>Backstory (short)</label>
-            <textarea id="backstory" placeholder="A few sentences max. What shaped them? Why are they in this world?"></textarea>
+            <label>First Impression of the Player</label>
+            <input type="text" id="firstImpressionOfPlayer" placeholder="optional" />
+          </div>
+          <div class="form-group">
+            <label>Trusts</label>
+            <input type="text" id="trusts" placeholder="" />
+          </div>
+          <div class="form-group">
+            <label>Doubts</label>
+            <input type="text" id="doubts" placeholder="sorcerers" />
+          </div>
+          <div class="form-group full">
+            <label>Refuses</label>
+            <input type="text" id="refuses" placeholder="Things this character will not do" />
+          </div>
+          <div class="form-group full">
+            <label>Closed Topics</label>
+            <input type="text" id="closedTopics" placeholder="Topics they will not discuss" />
+          </div>
+          <div class="form-group full">
+            <div class="check-row">
+              <input type="checkbox" id="doesNotStartFights" />
+              <label for="doesNotStartFights" style="margin:0">Does not start fights</label>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label>Force if Required</label>
+            <input type="text" id="forceIfRequired" placeholder="When they will still use force" />
           </div>
         </div>
       </div>
@@ -557,483 +523,670 @@
       <div class="tab-panel" id="tab-appearance">
         <div class="form-grid">
           <div class="form-group full">
-            <label>Overall Appearance Description</label>
-            <textarea id="appearanceDesc" placeholder="The main visual description the game / AI will use..."></textarea>
+            <label>Look</label>
+            <textarea id="look" placeholder="Overall appearance"></textarea>
           </div>
           <div class="form-group">
-            <label>Height</label>
-            <input type="text" id="height" placeholder="e.g. 5'6&quot; / 168 cm / short" />
+            <label>Tell (distinctive detail)</label>
+            <input type="text" id="tell" placeholder="" />
           </div>
           <div class="form-group">
-            <label>Hair</label>
-            <input type="text" id="hair" placeholder="color, style, length..." />
+            <label>Carried</label>
+            <input type="text" id="carried" placeholder="What they are usually carrying" />
           </div>
           <div class="form-group">
-            <label>Eyes</label>
-            <input type="text" id="eyes" placeholder="color, shape, expression..." />
+            <label>Motion</label>
+            <input type="text" id="motion" placeholder="How they move" />
           </div>
           <div class="form-group">
-            <label>Clothing Style</label>
-            <input type="text" id="clothingStyle" placeholder="cozy oversized sweaters, cyberpunk jackets..." />
+            <label>Voice</label>
+            <input type="text" id="voiceDesc" placeholder="Voice quality / accent" />
           </div>
-          <div class="form-group full">
-            <label>Distinctive Features</label>
-            <textarea id="distinctiveFeatures" placeholder="Scars, freckles, accessories, posture, anything memorable..."></textarea>
+          <div class="form-group">
+            <label>Age appearance</label>
+            <input type="text" id="ageAppear" placeholder="appears mid-30s..." />
           </div>
         </div>
       </div>
 
-      <!-- SOCIAL -->
-      <div class="tab-panel" id="tab-social">
-        <div class="form-grid">
-          <div class="form-group full">
-            <label>Interests / Hobbies</label>
-            <div class="tag-input-wrap" id="interests-wrap">
-              <input type="text" class="tag-input" id="interests-input" placeholder="Type + Enter" />
-            </div>
-          </div>
-          <div class="form-group full">
-            <label>Likes</label>
-            <div class="tag-input-wrap" id="likes-wrap">
-              <input type="text" class="tag-input" id="likes-input" placeholder="Type + Enter" />
-            </div>
-          </div>
-          <div class="form-group full">
-            <label>Dislikes</label>
-            <div class="tag-input-wrap" id="dislikes-wrap">
-              <input type="text" class="tag-input" id="dislikes-input" placeholder="Type + Enter" />
-            </div>
-          </div>
-          <div class="form-group full">
-            <label>Preferred Activities (things they'd enjoy doing together)</label>
-            <div class="tag-input-wrap" id="activities-wrap">
-              <input type="text" class="tag-input" id="activities-input" placeholder="quiet walks, gaming, cooking, deep talks..." />
-            </div>
-          </div>
-          <div class="form-group full">
-            <label>Comfort Zones / Safe Topics</label>
-            <div class="tag-input-wrap" id="comfort-wrap">
-              <input type="text" class="tag-input" id="comfort-input" placeholder="animals, music, special interests..." />
-            </div>
-            <span class="hint">Helpful for the game to know what topics feel safe and enjoyable.</span>
-          </div>
+      <!-- VOICE -->
+      <div class="tab-panel" id="tab-voice">
+        <p class="hint" style="margin-bottom:0.75rem">Optional voice clips. Label one <code>intro</code> to play when the character joins. Clips are stored as base64 and unpacked by the engine into the character's voice/ folder.</p>
+        <div id="voice-list"></div>
+        <div class="btn-row" style="margin-top:0.75rem">
+          <button type="button" class="btn secondary" id="add-voice-btn">+ Add Clip</button>
+          <input type="file" id="voice-file" accept="audio/*" style="display:none" />
         </div>
       </div>
 
       <!-- ADVANCED -->
       <div class="tab-panel" id="tab-advanced">
-        <div class="advanced-note">
-          For developers & power users. You can edit the raw JSON directly. Changes here will overwrite the form when you click “Apply Raw JSON”.
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Background / Notes</label>
+            <textarea id="notes-background" placeholder="Free-form background notes"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Aliases (comma-separated)</label>
+            <input type="text" id="aliases" placeholder="thundarr, the barbarian" />
+          </div>
+          <div class="form-group">
+            <label>Portrait filename</label>
+            <input type="text" id="portrait" value="portrait.png" />
+          </div>
+          <div class="form-group full">
+            <label>Max Carry Weight (lb)</label>
+            <input type="number" id="maxWeight" value="80" min="0" step="1" />
+          </div>
         </div>
-        <div class="form-group full">
-          <label>Notes (internal / for the game AI)</label>
-          <textarea id="notes" placeholder="Anything extra the game should know about this character..."></textarea>
-        </div>
-        <div class="form-group full" style="margin-top: 1rem;">
-          <label>Raw JSON Editor</label>
-          <textarea id="raw-json" spellcheck="false"></textarea>
-        </div>
-        <div class="footer-actions">
-          <button class="btn btn-primary" onclick="applyRawJson()">Apply Raw JSON → Form</button>
-          <button class="btn" onclick="syncRawFromForm()">Form → Raw JSON</button>
-        </div>
-      </div>
-
-      <!-- Bottom actions -->
-      <div style="padding: 1rem 1.25rem; border-top: 1px solid var(--border);">
-        <div class="footer-actions" style="margin:0; padding:0; border:none;">
-          <button class="btn btn-success" onclick="downloadJson()">⬇ Download JSON</button>
-          <button class="btn" onclick="copyJson()">Copy JSON</button>
-          <button class="btn" onclick="loadJsonFile()">Load JSON File</button>
-          <button class="btn btn-danger" onclick="resetForm()">Reset</button>
-        </div>
-        <div id="status" class="status"></div>
-        <input type="file" id="file-input" accept=".json,application/json" style="display:none" onchange="handleFileLoad(event)" />
       </div>
     </div>
 
-    <!-- Preview Card -->
-    <div class="card">
-      <div class="preview-header">
-        <h2>Live JSON Preview</h2>
-        <div class="preview-actions">
-          <button class="btn" onclick="downloadJson()" title="Download">⬇</button>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="card">
+        <h3>Actions</h3>
+        <div class="sidebar-body">
+          <div class="btn-row">
+            <button type="button" class="btn" id="download-btn">Download JSON</button>
+            <button type="button" class="btn secondary" id="copy-btn">Copy</button>
+            <button type="button" class="btn secondary" id="load-btn">Load JSON</button>
+            <button type="button" class="btn danger" id="reset-btn">Reset</button>
+          </div>
+          <input type="file" id="load-file" accept=".json,application/json" style="display:none" />
         </div>
       </div>
-      <pre id="json-preview"><span class="empty-state">Start filling the form…</span></pre>
+      <div class="card">
+        <h3>Live JSON Preview</h3>
+        <div class="sidebar-body">
+          <pre id="json-preview">{}</pre>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    // ---------- Alignment data ----------
+    const ABILITIES = [
+      { key: "str", label: "STR" },
+      { key: "dex", label: "DEX" },
+      { key: "con", label: "CON" },
+      { key: "int", label: "INT" },
+      { key: "wis", label: "WIS" },
+      { key: "cha", label: "CHA" }
+    ];
+
+    const SKILLS = [
+      { key: "perception", ability: "wis", ranks: 1 },
+      { key: "insight", ability: "wis", ranks: 0 },
+      { key: "persuasion", ability: "cha", ranks: 0 },
+      { key: "deception", ability: "cha", ranks: 0 },
+      { key: "athletics", ability: "str", ranks: 0 },
+      { key: "acrobatics", ability: "dex", ranks: 0 },
+      { key: "investigation", ability: "int", ranks: 0 }
+    ];
+
+    const SENSES = [
+      { key: "sight", label: "Sight" },
+      { key: "hearing", label: "Hearing" },
+      { key: "smell", label: "Smell" },
+      { key: "taste", label: "Taste" },
+      { key: "touch", label: "Touch" }
+    ];
+
     const ALIGNMENTS = {
-      "lawful good": {
-        name: "Lawful Good",
-        desc: "Believes in order, compassion, and doing the right thing through rules and institutions. Honorable, protective, and reliable."
-      },
-      "neutral good": {
-        name: "Neutral Good",
-        desc: "Does the best they can to help others without being overly bound by rules or chaos. Kind-hearted and pragmatic about methods."
-      },
-      "chaotic good": {
-        name: "Chaotic Good",
-        desc: "Follows their conscience and fights for freedom and good, even if it means breaking rules. Rebellious hero energy."
-      },
-      "lawful neutral": {
-        name: "Lawful Neutral",
-        desc: "Values order, tradition, and personal or organizational codes above good or evil. Reliable, structured, duty-focused."
-      },
-      "true neutral": {
-        name: "True Neutral",
-        desc: "Balanced, pragmatic, avoids extremes. Acts according to the situation rather than a strict code or personal freedom."
-      },
-      "chaotic neutral": {
-        name: "Chaotic Neutral",
-        desc: "Values personal freedom above all. Unpredictable, independent, follows their own whims. Not necessarily malicious."
-      },
-      "lawful evil": {
-        name: "Lawful Evil",
-        desc: "Uses rules, hierarchy, and systems to gain power or control. Methodical, ambitious, often ‘the villain who keeps their word’."
-      },
-      "neutral evil": {
-        name: "Neutral Evil",
-        desc: "Selfish and ruthless without strong loyalty to law or chaos. Does whatever benefits them most, no matter who gets hurt."
-      },
-      "chaotic evil": {
-        name: "Chaotic Evil",
-        desc: "Driven by rage, greed, or pure destructive impulse. Unpredictable, violent, and rejects any restraint."
-      }
+      "lawful good": { law: "lawful", moral: "good", label: "lawful good" },
+      "neutral good": { law: "neutral", moral: "good", label: "neutral good" },
+      "chaotic good": { law: "chaotic", moral: "good", label: "chaotic good" },
+      "lawful neutral": { law: "lawful", moral: "neutral", label: "lawful neutral" },
+      "true neutral": { law: "neutral", moral: "neutral", label: "true neutral" },
+      "chaotic neutral": { law: "chaotic", moral: "neutral", label: "chaotic neutral" },
+      "lawful evil": { law: "lawful", moral: "evil", label: "lawful evil" },
+      "neutral evil": { law: "neutral", moral: "evil", label: "neutral evil" },
+      "chaotic evil": { law: "chaotic", moral: "evil", label: "chaotic evil" }
+    };
+
+    const PRESETS = {
+      human: { sight: 5, hearing: 5, smell: 5, taste: 5, touch: 5 },
+      helen: { sight: 0, hearing: 0, smell: 7, taste: 6, touch: 9 },
+      bloodhound: { sight: 5, hearing: 5, smell: 10, taste: 5, touch: 5 },
+      eagle: { sight: 10, hearing: 5, smell: 4, taste: 4, touch: 5 },
+      bat: { sight: 2, hearing: 10, smell: 5, taste: 4, touch: 6 },
+      blind: { sight: 0, hearing: 6, smell: 6, taste: 5, touch: 7 },
+      deaf: { sight: 6, hearing: 0, smell: 5, taste: 5, touch: 6 }
     };
 
     let currentAlignment = "true neutral";
+    let tagFields = { traits: [], sampleLines: [] };
+    let voiceClips = [];
+    let abilityScores = { str: 10, dex: 10, con: 10, int: 10, wis: 10, cha: 10 };
+    let skillRanks = {};
+    SKILLS.forEach(s => skillRanks[s.key] = s.ranks);
+    let senseValues = { sight: 5, hearing: 5, smell: 5, taste: 5, touch: 5 };
 
-    // ---------- State ----------
-    const tagFields = {
-      tags: [],
-      traits: [],
-      interests: [],
-      likes: [],
-      dislikes: [],
-      preferredActivities: [],
-      comfortZones: []
-    };
-
-    // ---------- Helpers ----------
-    function slugify(text) {
-      return text
-        .toLowerCase()
-        .trim()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/[\s_-]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 48) || 'character';
+    function mod(score) {
+      return Math.floor((Number(score) - 10) / 2);
     }
 
-    function showStatus(msg, isError = false) {
-      const el = document.getElementById('status');
-      el.textContent = msg;
-      el.className = 'status show ' + (isError ? 'err' : 'ok');
-      setTimeout(() => el.classList.remove('show'), 4000);
+    function slugify(s) {
+      return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
     }
 
-    // ---------- Alignment UI ----------
-    function setAlignment(value) {
-      currentAlignment = value;
-      document.querySelectorAll('.align-btn').forEach(btn => {
-        btn.classList.toggle('selected', btn.dataset.align === value);
-      });
-      const info = ALIGNMENTS[value] || ALIGNMENTS["true neutral"];
-      document.getElementById('alignment-desc').innerHTML =
-        `<strong>${info.name}</strong> — ${info.desc}`;
-      updatePreview();
-    }
-
-    document.getElementById('alignment-grid').addEventListener('click', e => {
-      const btn = e.target.closest('.align-btn');
-      if (btn) setAlignment(btn.dataset.align);
-    });
-
-    // ---------- Tag system ----------
-    function renderTags(field) {
-      const wrap = document.getElementById(field + '-wrap');
-      const input = document.getElementById(field + '-input');
-      if (!wrap || !input) return;
-      wrap.querySelectorAll('.tag').forEach(t => t.remove());
-      tagFields[field].forEach((val, idx) => {
-        const tag = document.createElement('span');
-        tag.className = 'tag';
-        tag.innerHTML = `${escapeHtml(val)} <button type="button" data-field="${field}" data-idx="${idx}">×</button>`;
-        wrap.insertBefore(tag, input);
+    // Build ability cards
+    function renderAbilities() {
+      const grid = document.getElementById("ability-grid");
+      grid.innerHTML = "";
+      ABILITIES.forEach(a => {
+        const card = document.createElement("div");
+        card.className = "ability-card";
+        card.innerHTML = `
+          <label>${a.label}</label>
+          <input type="number" id="ab-${a.key}" min="1" max="30" value="${abilityScores[a.key]}" />
+          <div class="mod-display" id="mod-${a.key}">mod ${mod(abilityScores[a.key]) >= 0 ? "+" : ""}${mod(abilityScores[a.key])}</div>
+        `;
+        grid.appendChild(card);
+        card.querySelector("input").addEventListener("input", e => {
+          abilityScores[a.key] = Number(e.target.value) || 10;
+          document.getElementById("mod-" + a.key).textContent =
+            "mod " + (mod(abilityScores[a.key]) >= 0 ? "+" : "") + mod(abilityScores[a.key]);
+          renderSkills();
+          updatePreview();
+        });
       });
     }
 
-    function escapeHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function renderSkills() {
+      const area = document.getElementById("skills-area");
+      area.innerHTML = "";
+      SKILLS.forEach(s => {
+        const abMod = mod(abilityScores[s.ability]);
+        const ranks = skillRanks[s.key] ?? 0;
+        const total = abMod + ranks;
+        const row = document.createElement("div");
+        row.className = "skill-row";
+        row.innerHTML = `
+          <label>${s.key}</label>
+          <span style="font-size:0.75rem;color:var(--text-muted)">${s.ability.toUpperCase()}</span>
+          <input type="number" min="0" max="20" value="${ranks}" data-skill="${s.key}" />
+          <span class="skill-total">${total >= 0 ? "+" : ""}${total}</span>
+        `;
+        area.appendChild(row);
+        row.querySelector("input").addEventListener("input", e => {
+          skillRanks[s.key] = Number(e.target.value) || 0;
+          renderSkills();
+          updatePreview();
+        });
+      });
     }
 
+    function renderSenses() {
+      const box = document.getElementById("sense-sliders");
+      box.innerHTML = "";
+      SENSES.forEach(s => {
+        const row = document.createElement("div");
+        row.className = "sense-row";
+        row.innerHTML = `
+          <label>${s.label}</label>
+          <input type="range" min="0" max="10" value="${senseValues[s.key]}" data-sense="${s.key}" />
+          <span class="sense-val" id="sense-val-${s.key}">${senseValues[s.key]}</span>
+        `;
+        box.appendChild(row);
+        const slider = row.querySelector("input");
+        slider.addEventListener("input", e => {
+          senseValues[s.key] = Number(e.target.value);
+          document.getElementById("sense-val-" + s.key).textContent = senseValues[s.key];
+          updatePreview();
+        });
+      });
+    }
+
+    // Alignment buttons
+    function renderAlignment() {
+      const grid = document.getElementById("alignment-grid");
+      grid.innerHTML = "";
+      Object.keys(ALIGNMENTS).forEach(key => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "align-btn" + (key === currentAlignment ? " selected" : "");
+        btn.innerHTML = `<span class="align-name">${key.replace(/\b\w/g, c => c.toUpperCase())}</span>
+                         <span class="align-short">${key.split(" ").map(w => w[0].toUpperCase()).join("")}</span>`;
+        btn.addEventListener("click", () => {
+          currentAlignment = key;
+          renderAlignment();
+          updatePreview();
+        });
+        grid.appendChild(btn);
+      });
+    }
+
+    // Tag helpers
     function addTag(field, value) {
       value = value.trim();
-      if (!value) return;
-      if (!tagFields[field].includes(value)) {
-        tagFields[field].push(value);
-        renderTags(field);
-        updatePreview();
-      }
+      if (!value || tagFields[field].includes(value)) return;
+      tagFields[field].push(value);
+      renderTags(field);
+      updatePreview();
     }
-
-    // Wire up tag inputs
-    ['tags','traits','interests','likes','dislikes','activities','comfort'].forEach(key => {
-      const fieldMap = {
-        tags: 'tags',
-        traits: 'traits',
-        interests: 'interests',
-        likes: 'likes',
-        dislikes: 'dislikes',
-        activities: 'preferredActivities',
-        comfort: 'comfortZones'
-      };
-      const field = fieldMap[key];
-      const input = document.getElementById(key + '-input');
-      if (!input) return;
-
-      input.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ',') {
+    function removeTag(field, idx) {
+      tagFields[field].splice(idx, 1);
+      renderTags(field);
+      updatePreview();
+    }
+    function renderTags(field) {
+      const wrap = document.getElementById(field + "-wrap");
+      const input = document.getElementById(field + "-input");
+      // remove existing tags
+      wrap.querySelectorAll(".tag").forEach(t => t.remove());
+      tagFields[field].forEach((t, i) => {
+        const el = document.createElement("span");
+        el.className = "tag";
+        el.innerHTML = `${t}<button type="button" data-i="${i}">×</button>`;
+        el.querySelector("button").addEventListener("click", () => removeTag(field, i));
+        wrap.insertBefore(el, input);
+      });
+    }
+    function wireTagInput(field) {
+      const input = document.getElementById(field + "-input");
+      input.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
           e.preventDefault();
           addTag(field, input.value);
-          input.value = '';
+          input.value = "";
         }
       });
+    }
 
-      input.addEventListener('blur', () => {
-        if (input.value.trim()) {
-          addTag(field, input.value);
-          input.value = '';
-        }
+    // Voice clips
+    function renderVoice() {
+      const list = document.getElementById("voice-list");
+      list.innerHTML = "";
+      voiceClips.forEach((c, i) => {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem";
+        row.innerHTML = `
+          <input type="text" value="${c.label || ""}" placeholder="label (e.g. intro)" style="flex:1" data-i="${i}" class="voice-label" />
+          <span class="hint">${c.mime || ""} ${c.size ? (c.size/1024).toFixed(1)+" KB" : ""}</span>
+          <button type="button" class="btn secondary" data-del="${i}" style="padding:0.3rem 0.6rem">✕</button>
+        `;
+        list.appendChild(row);
+        row.querySelector(".voice-label").addEventListener("input", e => {
+          voiceClips[i].label = e.target.value;
+          updatePreview();
+        });
+        row.querySelector("[data-del]").addEventListener("click", () => {
+          voiceClips.splice(i, 1);
+          renderVoice();
+          updatePreview();
+        });
       });
+    }
+
+    document.getElementById("add-voice-btn").addEventListener("click", () => {
+      document.getElementById("voice-file").click();
     });
-
-    // Remove tag clicks
-    document.addEventListener('click', e => {
-      if (e.target.matches('.tag button')) {
-        const field = e.target.dataset.field;
-        const idx = parseInt(e.target.dataset.idx, 10);
-        tagFields[field].splice(idx, 1);
-        renderTags(field);
+    document.getElementById("voice-file").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const b64 = reader.result.split(",")[1];
+        voiceClips.push({
+          label: file.name.replace(/\.[^.]+$/, ""),
+          mime: file.type,
+          dataBase64: b64,
+          size: file.size
+        });
+        renderVoice();
         updatePreview();
-      }
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
     });
 
-    // ---------- Build character object ----------
+    // Presets
+    document.querySelectorAll(".preset-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const p = PRESETS[btn.dataset.preset];
+        if (!p) return;
+        Object.assign(senseValues, p);
+        renderSenses();
+        updatePreview();
+      });
+    });
+
+    // Build the character object (full v1)
     function buildCharacter() {
-      const name = document.getElementById('name').value.trim();
-      let id = document.getElementById('id').value.trim();
-      if (!id && name) id = slugify(name);
+      const name = document.getElementById("name").value.trim() || "Unnamed Character";
+      let id = document.getElementById("id").value.trim();
+      if (!id) id = slugify(name) || "unnamed";
 
-      const ageVal = document.getElementById('age').value;
-      const age = ageVal === '' ? null : Number(ageVal);
+      const abilities = {};
+      const abilityMods = {};
+      ABILITIES.forEach(a => {
+        abilities[a.key] = Number(abilityScores[a.key]) || 10;
+        abilityMods[a.key] = mod(abilities[a.key]);
+      });
 
-      const alignInfo = ALIGNMENTS[currentAlignment] || ALIGNMENTS["true neutral"];
+      const skills = {};
+      SKILLS.forEach(s => {
+        const ranks = Number(skillRanks[s.key]) || 0;
+        const abMod = abilityMods[s.ability];
+        skills[s.key] = {
+          ability: s.ability,
+          ranks: ranks,
+          total: abMod + ranks
+        };
+      });
+
+      const align = ALIGNMENTS[currentAlignment] || ALIGNMENTS["true neutral"];
+
+      const aliasesRaw = document.getElementById("aliases").value.trim();
+      const aliases = aliasesRaw ? aliasesRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
 
       return {
-        id: id || 'unnamed-character',
-        name: name || 'Unnamed Character',
-        pronouns: document.getElementById('pronouns').value.trim() || 'they/them',
-        age: age,
-        species: document.getElementById('species').value.trim() || 'human',
-        inspiration: document.getElementById('inspiration').value.trim() || 'original',
-        alignment: currentAlignment,
-        alignmentDescription: alignInfo.desc,
-        appearance: {
-          description: document.getElementById('appearanceDesc').value.trim(),
-          height: document.getElementById('height').value.trim(),
-          hair: document.getElementById('hair').value.trim(),
-          eyes: document.getElementById('eyes').value.trim(),
-          clothingStyle: document.getElementById('clothingStyle').value.trim(),
-          distinctiveFeatures: document.getElementById('distinctiveFeatures').value.trim()
+        schema: "infinite-cast.character.v1",
+        department: "character-file",
+        disclaimer: "Fan file for private play. Do not redistribute copyrighted characters.",
+        id: id,
+        name: name,
+        pronouns: document.getElementById("pronouns").value.trim() || "",
+        called: document.getElementById("called").value.trim() || "",
+        role: document.getElementById("role").value.trim() || "",
+        kind: document.getElementById("kind").value.trim() || "Human",
+        origin: document.getElementById("origin").value.trim() || "",
+        summary: document.getElementById("summary").value.trim() || "",
+        hook: document.getElementById("hook").value.trim() || "",
+        alignment: {
+          law: align.law,
+          moral: align.moral,
+          label: align.label
         },
+        abilities: abilities,
+        abilityMods: abilityMods,
+        skills: skills,
+        toonForce: document.getElementById("toonForce").checked,
+        toonNote: document.getElementById("toonNote").value.trim() || "",
         personality: {
-          summary: document.getElementById('personalitySummary').value.trim(),
           traits: [...tagFields.traits],
-          energyLevel: document.getElementById('energyLevel').value,
-          socialStyle: document.getElementById('socialStyle').value
+          virtue: document.getElementById("virtue").value.trim() || "",
+          flaw: document.getElementById("flaw").value.trim() || "",
+          wants: document.getElementById("wants").value.trim() || "",
+          fears: document.getElementById("fears").value.trim() || "",
+          speech: document.getElementById("speech").value.trim() || "",
+          sampleLines: [...tagFields.sampleLines]
         },
-        interests: [...tagFields.interests],
-        likes: [...tagFields.likes],
-        dislikes: [...tagFields.dislikes],
-        backstory: document.getElementById('backstory').value.trim(),
-        speechStyle: document.getElementById('speechStyle').value.trim(),
-        preferredActivities: [...tagFields.preferredActivities],
-        comfortZones: [...tagFields.comfortZones],
-        tags: [...tagFields.tags],
-        createdBy: document.getElementById('createdBy').value.trim(),
-        notes: document.getElementById('notes').value.trim(),
-        version: "1.1"
+        senses: {
+          acuity: {
+            sight: senseValues.sight,
+            hearing: senseValues.hearing,
+            smell: senseValues.smell,
+            taste: senseValues.taste,
+            touch: senseValues.touch
+          },
+          notices: document.getElementById("senses-notices").value.trim() || "",
+          misses: document.getElementById("senses-misses").value.trim() || "",
+          readsPeople: document.getElementById("senses-readsPeople").value.trim() || "",
+          entersPlace: document.getElementById("senses-entersPlace").value.trim() || ""
+        },
+        appearance: {
+          look: document.getElementById("look").value.trim() || "",
+          tell: document.getElementById("tell").value.trim() || "",
+          carried: document.getElementById("carried").value.trim() || "",
+          motion: document.getElementById("motion").value.trim() || "",
+          voice: document.getElementById("voiceDesc").value.trim() || "",
+          age: document.getElementById("ageAppear").value.trim() || ""
+        },
+        social: {
+          pitch: "",
+          likes: document.getElementById("likes").value.trim() || "",
+          dislikes: document.getElementById("dislikes").value.trim() || "",
+          inGroup: document.getElementById("inGroup").value.trim() || "",
+          inConflict: document.getElementById("inConflict").value.trim() || "",
+          recruitDifficulty: Number(document.getElementById("recruitDifficulty").value) || 2,
+          energy: Number(document.getElementById("energy").value) || 3,
+          comfort: document.getElementById("comfort").value.trim() || "",
+          firstImpressionOfPlayer: document.getElementById("firstImpressionOfPlayer").value.trim() || ""
+        },
+        bonds: {
+          trusts: document.getElementById("trusts").value.trim() || "",
+          doubts: document.getElementById("doubts").value.trim() || ""
+        },
+        limits: {
+          refuses: document.getElementById("refuses").value.trim() || "",
+          closedTopics: document.getElementById("closedTopics").value.trim() || "",
+          doesNotStartFights: document.getElementById("doesNotStartFights").checked,
+          forceIfRequired: document.getElementById("forceIfRequired").value.trim() || ""
+        },
+        voiceClips: voiceClips.map(c => ({
+          label: c.label || "clip",
+          mime: c.mime || "",
+          dataBase64: c.dataBase64 || c.data || "",
+          sizeBytes: c.size || 0
+        })),
+        inventory: {
+          unit: "lb",
+          maxWeight: Number(document.getElementById("maxWeight").value) || 80,
+          carriedWeight: 0,
+          overCapacity: false,
+          worn: {
+            head: null, neck: null, shoulders: null, chest: null, back: null,
+            waist: null, leftWrist: null, rightWrist: null,
+            leftHand: null, rightHand: null,
+            leftThumb: null, leftIndex: null, leftMiddle: null, leftRing: null, leftPinky: null,
+            rightThumb: null, rightIndex: null, rightMiddle: null, rightRing: null, rightPinky: null,
+            leftAnkle: null, rightAnkle: null, feet: null
+          },
+          pack: []
+        },
+        notes: {
+          background: document.getElementById("notes-background").value.trim() || ""
+        },
+        communication: document.getElementById("communication").value || "normal",
+        aliases: aliases,
+        portrait: document.getElementById("portrait").value.trim() || "portrait.png",
+        sounds: {}
       };
     }
 
     function updatePreview() {
       const char = buildCharacter();
-      const pretty = JSON.stringify(char, null, 2);
-      document.getElementById('json-preview').textContent = pretty;
-      const raw = document.getElementById('raw-json');
-      if (document.activeElement !== raw) {
-        raw.value = pretty;
+      const preview = JSON.parse(JSON.stringify(char));
+      if (preview.voiceClips) {
+        preview.voiceClips.forEach(c => {
+          if (c.dataBase64 && c.dataBase64.length > 80) {
+            c.dataBase64 = c.dataBase64.slice(0, 40) + "…[truncated]…" + c.dataBase64.slice(-12);
+          }
+        });
       }
+      document.getElementById("json-preview").textContent = JSON.stringify(preview, null, 2);
     }
 
-    // Live update on any input
-    document.querySelectorAll('input, select, textarea').forEach(el => {
-      if (el.id === 'raw-json') return;
-      el.addEventListener('input', updatePreview);
-      el.addEventListener('change', updatePreview);
-    });
+    // Load existing character into the form
+    function loadCharacter(data) {
+      if (!data || typeof data !== "object") return;
+      document.getElementById("name").value = data.name || "";
+      document.getElementById("id").value = data.id || "";
+      document.getElementById("id").dataset.userEdited = data.id ? "1" : "";
+      document.getElementById("pronouns").value = data.pronouns || "";
+      document.getElementById("called").value = data.called || "";
+      document.getElementById("role").value = data.role || "";
+      document.getElementById("kind").value = data.kind || data.species || "Human";
+      document.getElementById("origin").value = data.origin || data.inspiration || "";
+      document.getElementById("summary").value = data.summary || data.personality?.summary || "";
+      document.getElementById("hook").value = data.hook || "";
+      document.getElementById("communication").value = data.communication || "normal";
 
-    // Auto-slug when name changes and id is empty
-    document.getElementById('name').addEventListener('input', () => {
-      const idField = document.getElementById('id');
-      if (!idField.dataset.userEdited) {
-        idField.value = slugify(document.getElementById('name').value);
+      if (data.abilities) {
+        ABILITIES.forEach(a => {
+          if (data.abilities[a.key] != null) abilityScores[a.key] = data.abilities[a.key];
+        });
       }
-      updatePreview();
-    });
-    document.getElementById('id').addEventListener('input', () => {
-      document.getElementById('id').dataset.userEdited = '1';
-    });
+      if (data.skills) {
+        SKILLS.forEach(s => {
+          const sk = data.skills[s.key];
+          if (sk && typeof sk === "object" && sk.ranks != null) skillRanks[s.key] = sk.ranks;
+          else if (typeof sk === "number") skillRanks[s.key] = sk;
+        });
+      }
+      document.getElementById("toonForce").checked = !!data.toonForce;
+      document.getElementById("toonNote").value = data.toonNote || "";
 
-    // ---------- Tabs ----------
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      // Senses
+      const ac = data.senses?.acuity || data.senses || {};
+      SENSES.forEach(s => {
+        if (ac[s.key] != null) senseValues[s.key] = Number(ac[s.key]);
+      });
+      document.getElementById("senses-notices").value = data.senses?.notices || "";
+      document.getElementById("senses-misses").value = data.senses?.misses || "";
+      document.getElementById("senses-readsPeople").value = data.senses?.readsPeople || "";
+      document.getElementById("senses-entersPlace").value = data.senses?.entersPlace || "";
+
+      // Personality
+      const pers = data.personality || {};
+      tagFields.traits = Array.isArray(pers.traits) ? [...pers.traits] : [];
+      tagFields.sampleLines = Array.isArray(pers.sampleLines) ? [...pers.sampleLines] : [];
+      document.getElementById("virtue").value = pers.virtue || "";
+      document.getElementById("flaw").value = pers.flaw || "";
+      document.getElementById("wants").value = pers.wants || "";
+      document.getElementById("fears").value = pers.fears || "";
+      document.getElementById("speech").value = pers.speech || data.speechStyle || "";
+
+      if (data.alignment) {
+        if (typeof data.alignment === "string") {
+          currentAlignment = data.alignment.toLowerCase();
+        } else if (data.alignment.label) {
+          currentAlignment = data.alignment.label.toLowerCase();
+        }
+      }
+
+      // Social
+      const soc = data.social || {};
+      document.getElementById("likes").value = soc.likes || (Array.isArray(data.likes) ? data.likes.join(", ") : "");
+      document.getElementById("dislikes").value = soc.dislikes || (Array.isArray(data.dislikes) ? data.dislikes.join(", ") : "");
+      document.getElementById("inGroup").value = soc.inGroup || "";
+      document.getElementById("inConflict").value = soc.inConflict || "";
+      document.getElementById("recruitDifficulty").value = soc.recruitDifficulty ?? 2;
+      document.getElementById("energy").value = soc.energy ?? 3;
+      document.getElementById("comfort").value = soc.comfort || "";
+      document.getElementById("firstImpressionOfPlayer").value = soc.firstImpressionOfPlayer || "";
+
+      const bonds = data.bonds || {};
+      document.getElementById("trusts").value = bonds.trusts || "";
+      document.getElementById("doubts").value = bonds.doubts || "";
+
+      const lim = data.limits || {};
+      document.getElementById("refuses").value = lim.refuses || "";
+      document.getElementById("closedTopics").value = lim.closedTopics || "";
+      document.getElementById("doesNotStartFights").checked = !!lim.doesNotStartFights;
+      document.getElementById("forceIfRequired").value = lim.forceIfRequired || "";
+
+      // Appearance
+      const app = data.appearance || {};
+      document.getElementById("look").value = app.look || app.description || "";
+      document.getElementById("tell").value = app.tell || "";
+      document.getElementById("carried").value = app.carried || "";
+      document.getElementById("motion").value = app.motion || "";
+      document.getElementById("voiceDesc").value = app.voice || "";
+      document.getElementById("ageAppear").value = app.age || "";
+
+      // Advanced
+      document.getElementById("notes-background").value = data.notes?.background || data.notes || data.backstory || "";
+      document.getElementById("aliases").value = Array.isArray(data.aliases) ? data.aliases.join(", ") : "";
+      document.getElementById("portrait").value = data.portrait || "portrait.png";
+      document.getElementById("maxWeight").value = data.inventory?.maxWeight ?? 80;
+
+      // Voice
+      voiceClips = (data.voiceClips || []).map(c => ({
+        label: c.label || "clip",
+        mime: c.mime || "",
+        dataBase64: c.dataBase64 || c.data || "",
+        size: c.sizeBytes || c.size || 0
+      }));
+
+      renderAbilities();
+      renderSkills();
+      renderSenses();
+      renderAlignment();
+      renderTags("traits");
+      renderTags("sampleLines");
+      renderVoice();
+      updatePreview();
+    }
+
+    // Tabs
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
       });
     });
 
-    // ---------- Actions ----------
-    function downloadJson() {
-      const char = buildCharacter();
-      if (!char.name || char.name === 'Unnamed Character') {
-        showStatus('Please give the character a name first.', true);
-        return;
+    // Name → id
+    document.getElementById("name").addEventListener("input", () => {
+      const idField = document.getElementById("id");
+      if (!idField.dataset.userEdited) {
+        idField.value = slugify(document.getElementById("name").value);
       }
-      const blob = new Blob([JSON.stringify(char, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = (char.id || 'character') + '.json';
+      updatePreview();
+    });
+    document.getElementById("id").addEventListener("input", () => {
+      document.getElementById("id").dataset.userEdited = "1";
+      updatePreview();
+    });
+
+    // Live update for most fields
+    document.querySelectorAll("input, select, textarea").forEach(el => {
+      el.addEventListener("input", updatePreview);
+      el.addEventListener("change", updatePreview);
+    });
+
+    // Buttons
+    document.getElementById("download-btn").addEventListener("click", () => {
+      const char = buildCharacter();
+      const blob = new Blob([JSON.stringify(char, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = (char.id || "character") + ".json";
       a.click();
-      URL.revokeObjectURL(url);
-      showStatus('Downloaded ' + a.download);
-    }
-
-    function copyJson() {
-      const text = JSON.stringify(buildCharacter(), null, 2);
-      navigator.clipboard.writeText(text).then(() => {
-        showStatus('JSON copied to clipboard');
-      }).catch(() => showStatus('Copy failed – try downloading instead', true));
-    }
-
-    function loadJsonFile() {
-      document.getElementById('file-input').click();
-    }
-
-    function handleFileLoad(e) {
+      URL.revokeObjectURL(a.href);
+    });
+    document.getElementById("copy-btn").addEventListener("click", async () => {
+      const char = buildCharacter();
+      await navigator.clipboard.writeText(JSON.stringify(char, null, 2));
+      const btn = document.getElementById("copy-btn");
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = "Copy", 1200);
+    });
+    document.getElementById("load-btn").addEventListener("click", () => {
+      document.getElementById("load-file").click();
+    });
+    document.getElementById("load-file").addEventListener("change", e => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = ev => {
+      reader.onload = () => {
         try {
-          const data = JSON.parse(ev.target.result);
-          populateForm(data);
-          showStatus('Loaded ' + file.name);
+          loadCharacter(JSON.parse(reader.result));
         } catch (err) {
-          showStatus('Invalid JSON file', true);
+          alert("Could not parse JSON: " + err.message);
         }
       };
       reader.readAsText(file);
-      e.target.value = '';
-    }
+      e.target.value = "";
+    });
+    document.getElementById("reset-btn").addEventListener("click", () => {
+      if (!confirm("Clear the form?")) return;
+      location.reload();
+    });
 
-    function populateForm(data) {
-      document.getElementById('name').value = data.name || '';
-      document.getElementById('id').value = data.id || '';
-      document.getElementById('id').dataset.userEdited = data.id ? '1' : '';
-      document.getElementById('pronouns').value = data.pronouns || 'they/them';
-      document.getElementById('age').value = data.age ?? '';
-      document.getElementById('species').value = data.species || 'human';
-      document.getElementById('inspiration').value = data.inspiration || '';
-      document.getElementById('createdBy').value = data.createdBy || '';
-
-      document.getElementById('personalitySummary').value = data.personality?.summary || '';
-      document.getElementById('energyLevel').value = data.personality?.energyLevel || 'medium';
-      document.getElementById('socialStyle').value = data.personality?.socialStyle || 'ambivert';
-      document.getElementById('speechStyle').value = data.speechStyle || '';
-      document.getElementById('backstory').value = data.backstory || '';
-
-      document.getElementById('appearanceDesc').value = data.appearance?.description || '';
-      document.getElementById('height').value = data.appearance?.height || '';
-      document.getElementById('hair').value = data.appearance?.hair || '';
-      document.getElementById('eyes').value = data.appearance?.eyes || '';
-      document.getElementById('clothingStyle').value = data.appearance?.clothingStyle || '';
-      document.getElementById('distinctiveFeatures').value = data.appearance?.distinctiveFeatures || '';
-
-      document.getElementById('notes').value = data.notes || '';
-
-      // Alignment
-      const align = (data.alignment || 'true neutral').toLowerCase();
-      if (ALIGNMENTS[align]) {
-        setAlignment(align);
-      } else {
-        setAlignment('true neutral');
-      }
-
-      // tags
-      tagFields.tags = Array.isArray(data.tags) ? [...data.tags] : [];
-      tagFields.traits = Array.isArray(data.personality?.traits) ? [...data.personality.traits] : [];
-      tagFields.interests = Array.isArray(data.interests) ? [...data.interests] : [];
-      tagFields.likes = Array.isArray(data.likes) ? [...data.likes] : [];
-      tagFields.dislikes = Array.isArray(data.dislikes) ? [...data.dislikes] : [];
-      tagFields.preferredActivities = Array.isArray(data.preferredActivities) ? [...data.preferredActivities] : [];
-      tagFields.comfortZones = Array.isArray(data.comfortZones) ? [...data.comfortZones] : [];
-
-      ['tags','traits','interests','likes','dislikes','preferredActivities','comfortZones'].forEach(f => renderTags(f));
-      updatePreview();
-    }
-
-    function applyRawJson() {
-      try {
-        const data = JSON.parse(document.getElementById('raw-json').value);
-        populateForm(data);
-        showStatus('Raw JSON applied to form');
-      } catch (err) {
-        showStatus('Invalid JSON – fix syntax first', true);
-      }
-    }
-
-    function syncRawFromForm() {
-      document.getElementById('raw-json').value = JSON.stringify(buildCharacter(), null, 2);
-      showStatus('Form synced to raw editor');
-    }
-
-    function resetForm() {
-      if (!confirm('Clear the entire form?')) return;
-      document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
-        if (el.id !== 'raw-json') el.value = '';
-      });
-      document.getElementById('pronouns').value = 'they/them';
-      document.getElementById('species').value = 'human';
-      document.getElementById('energyLevel').value = 'medium';
-      document.getElementById('socialStyle').value = 'ambivert';
-      document.getElementById('id').dataset.userEdited = '';
-      Object.keys(tagFields).forEach(k => { tagFields[k] = []; renderTags(k); });
-      setAlignment('true neutral');
-      updatePreview();
-      showStatus('Form reset');
-    }
-
-    // Initial render
-    setAlignment('true neutral');
+    // Init
+    wireTagInput("traits");
+    wireTagInput("sampleLines");
+    renderAbilities();
+    renderSkills();
+    renderSenses();
+    renderAlignment();
     updatePreview();
   </script>
 </body>
